@@ -65,8 +65,7 @@ export default {
         
       try {
         const data = await api.getUserDetails(this.formData.userName)
-        this.user = data
-        console.log(this.user)
+        this.user = data;
       } catch (err) {
         this.error = err
       } finally {
