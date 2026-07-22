@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-  {
-    path: '/',
-    component: ()=>import('../components/HelloWorld.vue')
-  },
+  // {
+  //   path: '/',
+  //   component: ()=>import('../components/HelloWorld.vue')
+  // },
   {
     path: '/user-list',
     component: ()=>import('../pages/UserList.vue')

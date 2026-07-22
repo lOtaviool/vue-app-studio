@@ -18,53 +18,50 @@
     </b-modal>
 </template>
 
-<script>
-    import { api } from '@/services/userService';
+<script setup> 
+    import { ref, watch, computed } from 'vue';
+    import { useUserStore } from '@/store/user.store';
 
-    export default {
-        name: 'EditModal',
-        props: {
-            showModal: Boolean,
-            user: Object
+    const props = defineProps({
+        showModal: {
+            type: Boolean,
+            required: true
         },
-        emits: ['update:showModal', 'updateName'],
-        data() {
-            return {
-                localName: ''
-            }
-        },
-        computed: {
-            isVisible: {
-            get() {
-                return this.showModal
-            },
-            set(value) {
-                this.$emit('update:showModal', value)
-            }
-            }
-        },
-        watch: {
-            user(newVal) {
-                if (newVal) {
-                    this.localName = newVal.name
-                }
-            }
-        },
-        methods: {
-            async saveChanges() {
-                console.log('Novo nome:', this.localName)                    
-                const data = await api.updateUserName(this.user?.id, this.localName);
-                if(data.status == 200){
-                    this.$emit('close');
-                }
-                
-            },
-            cancel(){
-                this.$emit('close');
-            }
-            
+        user: {
+            type: Object,
+            required: true
+        }
+    });
+
+    const emit = defineEmits(['update:showModal', 'close']);
+    const userStore = useUserStore();
+    const localName = ref('');
+
+    const isVisible = computed({
+        get: () => props.showModal,
+        set: (value) => emit('update:showModal', value)
+    });
+
+    watch(() => props.user, (newUser) => {
+        if (newUser) {
+            localName.value = newUser.name;
+        }
+    }, { immediate: true });
+
+    async function saveChanges() {
+        try {
+            await userStore.updateUser(props.user.id, localName.value);
+            emit('close');
+        } catch (error) {
+            console.error('Erro ao atualizar o usuário:', error);
         }
     }
+
+    function cancel() {
+        emit('close');
+    }
+
+
 </script>
 
 <style></style>

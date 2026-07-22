@@ -4,13 +4,13 @@
             <h3>Lista de Usuários</h3>
         </div>
         <br/>
-        <div v-if="list_data.length <= 0 && !isLoading">
+        <div v-if="users.length <= 0 && !loading">
             <h4>Nenhum dado encontrado! :(</h4>
         </div>
-        <div v-if="list_data.length <= 0 && isLoading">
+        <div v-if="users.length <= 0 && loading">
             <div class="spinner-border text-dark" role="status"></div>
         </div>
-        <div class="card-container" v-for="user in this.list_data" :key="user.id">
+        <div class="card-container" v-for="user in users" :key="user.id">
             <div class="card-content" role="user-card" >
                 <div style="display:flex; align-items: center; gap:20px; width: 100%">
                     <img class="rounded-circle float-start" style="width: 100px" :src="user?.avatar"/>
@@ -29,58 +29,36 @@
     </div>
 
     <EditModal
-        :showModal="this.showModal"
-        :user="this.selectedUser"
-        @close="this.showModal = false"
-        @hidden="getUsers"
+        v-model:showModal="showModal"
+        :user="selectedUser"
     />
 </template>
 
-<script>
-    import EditModal from '@/components/EditModal.vue';
-    import { api } from '../services/userService';
+<script setup>
+    import { ref, onMounted } from 'vue';
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/store/user.store';
+    import EditModal from '../components/EditModal.vue';
 
-    export default{
-        name: 'User-list',
-        components: {EditModal},
-        data(){
-            return {
-                list_data: [],
-                isLoading: false,
-                error: null,
-                showModal: false,
-                selectedUser: null
-            }
-        },
-        methods:{
-            async getUsers(){
-                this.isLoading = true;
-                this.user = null;
-        
-                try {
-                    const data = await api.getUsers()
-                    this.list_data = data;
-                } catch (err) {
-                    this.error = err
-                } finally {
-                    this.isLoading = false
-                }
-            },
-            openEditModal(user){
-                this.selectedUser = user
-                this.showModal = true
-            },
-            async deleteUser(id){
-                await api.deleteUser(id).then((res)=>{
-                    if(res.status === 200) this.getUsers();
-                })
-                
-            }
-        },
-        mounted() {
-            this.getUsers()
-        }
+    const userStore = useUserStore();
+    const { users, loading } = storeToRefs(userStore);
+
+    const showModal = ref(false);
+    const selectedUser = ref(null);
+
+    function openEditModal(user) {
+        selectedUser.value = user;
+        showModal.value = true;
     }
+
+    function deleteUser(userId) {
+        userStore.deleteUser(userId);
+    }
+
+    onMounted(() => {
+        userStore.getUsers();
+    });
+
 
 </script>
 
