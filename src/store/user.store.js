@@ -5,6 +5,7 @@ import { api } from '../services/userService';
 
 export const useUserStore = defineStore('user', () => {
     // State
+    const user = ref(null);
     const users = ref([]);
     const loading = ref(false);
     const error = ref(null);
@@ -15,6 +16,18 @@ export const useUserStore = defineStore('user', () => {
 
         try {
             users.value = await api.getUsers()
+        } catch (err) {
+            error.value = err
+        } finally {
+            loading.value = false
+        }
+    }
+
+    async function getUserDetails(name) {
+        loading.value = true
+
+        try {
+            user.value = await api.getUserDetails(name)
         } catch (err) {
             error.value = err
         } finally {
@@ -67,6 +80,8 @@ export const useUserStore = defineStore('user', () => {
         getUsers,
         deleteUser,
         updateUser,
+        getUserDetails,
+        user,
         users,
         loading,
         error

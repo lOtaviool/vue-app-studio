@@ -11,11 +11,11 @@
                 </div>
             </form>
         </div>
-        <div v-if="this.user || this.isLoading" class="content">
-          <div v-if="this.isLoading">
+        <div v-if="user || loading" class="content">
+          <div v-if="loading">
             <div class="spinner-border text-dark" role="status"></div>
           </div>
-          <div v-if="this.user">
+          <div v-if="user">
               <h2>Usuário do GitHub</h2>
               <br/>
               <div class="details">
@@ -42,38 +42,22 @@
     </div>
 </template>
 
-<script>
+<script setup>
     import { reactive } from 'vue'
-    import { api } from '../services/userService'
+    import { storeToRefs } from 'pinia';
+    import { useUserStore } from '@/store/user.store';
 
-export default {
-  name: 'User-Details',
-  data() {
-    return {
-        formData: reactive({
-            userName: ''
-        }),
-        user: null,
-        isLoading: false,
-        error: null
+    const userStore = useUserStore();
+
+    const { user, loading } = storeToRefs(userStore);   
+
+    const formData = reactive({
+        userName: ''
+    })
+
+    async function getUser() {
+        await userStore.getUserDetails(formData.userName);
     }
-  },
-  methods: {
-    async getUser() {
-      this.isLoading = true;
-      this.user = null;
-        
-      try {
-        const data = await api.getUserDetails(this.formData.userName)
-        this.user = data;
-      } catch (err) {
-        this.error = err
-      } finally {
-        this.isLoading = false
-      }
-    }
-  }
-}
 
 </script>
 

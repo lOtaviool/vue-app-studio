@@ -9,9 +9,9 @@ async function getUsers(){
 }
 
 async function getUserDetails(userName){
-  const response = await axios.get(`${GIT_URL}/users/${userName}`);
+  const response = axios.get(`${GIT_URL}/users/${userName}`);
 
-  return response.data;
+  return (await response).data;
 }
 
 async function updateUserName(userId, name){
